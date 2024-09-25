@@ -33,11 +33,11 @@ export function createProgram(gl, vertexShaderSrc, fragmentShaderSrc) {
 
 /**
  * @param {WebGL2RenderingContext} gl
- * @param {number} textureIndex
+ * @param {number} index
  */
-export function initBuffer(gl, textureIndex) {
+export function initBuffer(gl, index) {
   const texture = gl.createTexture()
-  gl.activeTexture(gl.TEXTURE0 + textureIndex)
+  gl.activeTexture(gl.TEXTURE0 + index)
   gl.bindTexture(gl.TEXTURE_2D, texture)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB8, gl.canvas.width, gl.canvas.height, 0, gl.RGB, gl.UNSIGNED_BYTE, null)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
