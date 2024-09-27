@@ -1,113 +1,90 @@
 import { createProgram, initBuffer } from "../webgl-helpers.js"
 
-const VERT_SRC = await (await fetch('./perlin/shader.vert')).text()
-const FRAG_SRC = await (await fetch('./perlin/shader.frag')).text()
-
-const SCALE = 0.1
-// Lower = faster
-const SPEED = 200
+const VERT_SRC = await (await fetch('./perlin/perlin.vert')).text()
+const FRAG_SRC = await (await fetch('./perlin/perlin.frag')).text()
 
 export default class Perlin {
   /** @param {WebGL2RenderingContext} gl */
-  constructor (gl, framebufferIndex) {
+  constructor (gl, scale, speed, framebufferIndex) {
     const width = gl.canvas.width
     const height = gl.canvas.height
     this.gl = gl
     this.program = createProgram(gl, VERT_SRC, FRAG_SRC)
     this.framebuffer = initBuffer(gl, framebufferIndex)
 
-    // Calculate size of grid
-    let pixelSize, gridW, gridH, uvW, uvH
+    let pixelSize, gridW, gridH
     if (width > height) {
-      gridW = Math.ceil(1 / SCALE)
-      pixelSize = width * SCALE
+      gridW = Math.ceil(1 / scale)
+      pixelSize = width * scale
       gridH = Math.ceil(height / pixelSize)
     } else {
-      gridH = Math.ceil(1 / SCALE)
-      pixelSize = height * SCALE
+      gridH = Math.ceil(1 / scale)
+      pixelSize = height * scale
       gridW = Math.ceil(width / pixelSize)
     }
-    uvW = (2 / width) * pixelSize
-    uvH = (2 / height) * pixelSize
-    console.log({pixelSize, gridW, gridH, uvW, uvH})
-    // Populate perlin grid
-    this.perlinArray = Array((gridW + 1) * (gridH + 1)).fill().map(() => [Math.random(), Math.random() / SPEED])
+    const posWidth = (2 / width) * pixelSize
+    const posHeight = (2 / height) * pixelSize
 
-    // Populate vertex and texture positions, also prepare perlin value mapping
-    const vertexPositions = []
-    const texturePositions = []
-    this.perlinMap = []
-    for (let y = 0; y < gridH; y++) {
-      for (let x = 0; x < gridW; x++) {
-        const [ax, ay] = [-1 + (uvW * x), 1 - (uvH * y)]
-        const [bx, by] = [ax + uvW, ay - uvH]
-        // TL, BL, TR
-        // BL, TR, BR
-        vertexPositions.push(
-          ax, ay, ax, by, bx, ay,
-          ax, by, bx, ay, bx, by
-        )
-        texturePositions.push(
-          0, 0, 0, 1, 1, 0,
-          0, 1, 1, 0, 1, 1
-        )
-        const tl = ((gridW + 1) * y) + x
-        const tr = tl + 1
-        const bl = tl + gridW + 1
-        const br = bl + 1
-        this.perlinMap.push(
-          tl, tr, bl, br,
-          tl, tr, bl, br,
-          tl, tr, bl, br,
-          tl, tr, bl, br,
-          tl, tr, bl, br,
-          tl, tr, bl, br
-        )
+    const posVertices = []
+    const texVertices = []
+    const scalars = []
+    const vertIndices = []
+    for (let y = 0; y <= gridH; y++) {
+      for (let x = 0; x <= gridW; x++) {
+        if (x < gridW && y < gridH) {
+          vertIndices.push(
+            ((gridW + 1) * (y + 0)) + x + 0,
+            ((gridW + 1) * (y + 1)) + x + 0,
+            ((gridW + 1) * (y + 0)) + x + 1,
+            ((gridW + 1) * (y + 1)) + x + 0,
+            ((gridW + 1) * (y + 0)) + x + 1,
+            ((gridW + 1) * (y + 1)) + x + 1
+          )
+        }
+        const [dx, dy] = [-1 + (x * posWidth), 1 - (y * posHeight)]
+        posVertices.push(dx, dy)
+        texVertices.push(x, y)
+        scalars.push(Math.random())
       }
     }
-    this.verticies = gridW * gridH * 6
+    this.vertexCount = vertIndices.length
 
     gl.useProgram(this.program)
-
     this.vao = gl.createVertexArray()
     gl.bindVertexArray(this.vao)
 
     const positionLoc = gl.getAttribLocation(this.program, 'a_position')
     const posVertexBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, posVertexBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexPositions), gl.STATIC_DRAW)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(posVertices), gl.STATIC_DRAW)
     gl.enableVertexAttribArray(positionLoc)
     gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0)
 
     const textureLoc = gl.getAttribLocation(this.program, 'a_texture')
     const texVertexBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, texVertexBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texturePositions), gl.STATIC_DRAW)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texVertices), gl.STATIC_DRAW)
     gl.enableVertexAttribArray(textureLoc)
     gl.vertexAttribPointer(textureLoc, 2, gl.FLOAT, false, 0, 0)
 
-    const perlinLoc = gl.getAttribLocation(this.program, 'a_perlin')
-    this.perlinBuffer = gl.createBuffer()
-    this.updatePelinBuffer()
-    gl.enableVertexAttribArray(perlinLoc)
-    gl.vertexAttribPointer(perlinLoc, 4, gl.FLOAT, false, 0, 0)
-  }
+    const scalarLoc = gl.getAttribLocation(this.program, 'a_scalar')
+    const scalarBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, scalarBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(scalars), gl.STATIC_DRAW)
+    gl.enableVertexAttribArray(scalarLoc)
+    gl.vertexAttribPointer(scalarLoc, 2, gl.FLOAT, false, 0, 0)
 
-  updatePelinBuffer () {
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.perlinBuffer)
-    this.perlinArray.forEach(i => {
-      i[0] += i[1]
-      i[0] = i[0] % 1
-    })
-    const perlinValues = this.perlinMap.map(i => this.perlinArray[i][0])
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(perlinValues), this.gl.STATIC_DRAW)
+    const indexBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertIndices), gl.STATIC_DRAW)
   }
 
   draw () {
     this.gl.useProgram(this.program)
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer)
+    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer)
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.posVertexBuffer)
     this.gl.bindVertexArray(this.vao)
-    this.updatePelinBuffer()
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, this.verticies)
+    this.gl.drawElements(this.gl.TRIANGLES, this.vertexCount, this.gl.UNSIGNED_SHORT, 0)
   }
 }

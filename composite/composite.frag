@@ -8,6 +8,5 @@ out vec4 o_colour;
 
 void main () {
     vec2 uv = gl_FragCoord.xy / u_resolution;
-    float a = texture(u_warpTex, uv).r;
-    o_colour = vec4(a, a, a, 1.0);
+    o_colour = texture(u_warpTex, uv);
 }

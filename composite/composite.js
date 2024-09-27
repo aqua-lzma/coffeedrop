@@ -1,7 +1,7 @@
 import { createProgram } from "../webgl-helpers.js"
 
-const VERT_SRC = await (await fetch('./composite/shader.vert')).text()
-const FRAG_SRC = await (await fetch('./composite/shader.frag')).text()
+const VERT_SRC = await (await fetch('./composite/composite.vert')).text()
+const FRAG_SRC = await (await fetch('./composite/composite.frag')).text()
 
 export default class Composite {
   /** @param {WebGL2RenderingContext} gl */
