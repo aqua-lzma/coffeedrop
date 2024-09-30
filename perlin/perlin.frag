@@ -2,8 +2,8 @@
 precision highp float;
 
 in vec2 v_texture;
-
-uniform vec4 u_perlin;
+flat in vec4 v_scalar;
+flat in vec4 v_scalar2;
 
 out vec4 o_colour;
 
@@ -37,7 +37,6 @@ float calcPerlin (mat4x2 gradients, mat4x2 offsets, vec2 easedUV) {
 
 void main () {
     vec2 uv = fract(v_texture);
-    /*
     vec2 easedUV = sin(v_texture * TAU);
     easedUV *= easedUV;
 
@@ -49,12 +48,12 @@ void main () {
     );
 
 
-    float v1 = calcPerlin(decompScalars(u_perlin), centeredTex, easedUV);
-    // float v2 = calcPerlin(decompScalars(u_perlin[1]), centeredTex, easedUV);
+    float v1 = calcPerlin(decompScalars(v_scalar), centeredTex, easedUV);
+    float v2 = calcPerlin(decompScalars(v_scalar2), centeredTex, easedUV);
     // float v3 = calcPerlin(decompScalars(u_perlin[2]), centeredTex, easedUV);
     // float v4 = calcPerlin(decompScalars(u_perlin[3]), centeredTex, easedUV);
+    float v3 = abs(v1 - v2);
 
-    o_colour = vec4(v1, v1, v1, 1.0);
-    */
-    o_colour = vec4(uv.xy, 1.0, 1.0);
+    o_colour = vec4(v3, v3, v3, 1.0);
+    //o_colour = vec4(uv.xy, 0.5, 1.0);
 }

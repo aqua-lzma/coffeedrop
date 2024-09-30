@@ -20,5 +20,4 @@ function drawFrame () {
   window.requestAnimationFrame(drawFrame)
 }
 
-perlin1.draw()
-// drawFrame()
+drawFrame()

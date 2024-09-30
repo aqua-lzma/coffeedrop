@@ -25,66 +25,96 @@ export default class Perlin {
     const posWidth = (2 / width) * pixelSize
     const posHeight = (2 / height) * pixelSize
 
-    const posVertices = []
-    const texVertices = []
-    const scalars = []
-    const vertIndices = []
-    for (let y = 0; y <= gridH; y++) {
-      for (let x = 0; x <= gridW; x++) {
-        if (x < gridW && y < gridH) {
-          vertIndices.push(
-            ((gridW + 1) * (y + 0)) + x + 0,
-            ((gridW + 1) * (y + 1)) + x + 0,
-            ((gridW + 1) * (y + 0)) + x + 1,
-            ((gridW + 1) * (y + 1)) + x + 0,
-            ((gridW + 1) * (y + 0)) + x + 1,
-            ((gridW + 1) * (y + 1)) + x + 1
-          )
-        }
-        const [dx, dy] = [-1 + (x * posWidth), 1 - (y * posHeight)]
-        posVertices.push(dx, dy)
-        texVertices.push(x, y)
-        scalars.push(Math.random())
+    const posVerts = []
+    const texVerts = []
+    this.scalarMap = []
+    for (let y = 0; y < gridH; y++) {
+      for (let x = 0; x < gridW; x++) {
+        const [x0, y0] = [-1 + (x * posWidth), 1 - (y * posHeight)]
+        const [x1, y1] = [x0 + posWidth, y0 - posHeight]
+        posVerts.push(
+          x0, y0, x0, y1, x1, y0,
+          x0, y1, x1, y0, x1, y1
+        )
+        texVerts.push(
+          0, 0, 0, 1, 1, 0,
+          0, 1, 1, 0, 1, 1
+        )
+        const i1 = ((gridW + 1) * (y + 0)) + x + 0
+        const i2 = ((gridW + 1) * (y + 0)) + x + 1
+        const i3 = ((gridW + 1) * (y + 1)) + x + 0
+        const i4 = ((gridW + 1) * (y + 1)) + x + 1
+        for (let i = 0; i < 6; i++) this.scalarMap.push(i1, i2, i3, i4)
       }
     }
-    this.vertexCount = vertIndices.length
+    this.scalars = new Array((gridW + 1) * (gridH + 1)).fill().map(() => ({
+      value: Math.random(), rate: Math.random() / speed
+    }))
+    this.scalars2 = new Array((gridW + 1) * (gridH + 1)).fill().map(() => ({
+      value: Math.random(), rate: Math.random() / speed
+    }))
+    this.scalarVerts = new Float32Array(this.scalarMap.length)
+    this.scalar2Verts = new Float32Array(this.scalarMap.length)
+    for (let i = 0; i < this.scalarMap.length; i++) {
+      this.scalarVerts[i] = this.scalars[this.scalarMap[i]].value
+      this.scalar2Verts[i] = this.scalars2[this.scalarMap[i]].value
+    }
+    this.vertexCount = gridW * gridH * 6
 
     gl.useProgram(this.program)
     this.vao = gl.createVertexArray()
     gl.bindVertexArray(this.vao)
 
     const positionLoc = gl.getAttribLocation(this.program, 'a_position')
-    const posVertexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, posVertexBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(posVertices), gl.STATIC_DRAW)
+    const posVertBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, posVertBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(posVerts), gl.STATIC_DRAW)
     gl.enableVertexAttribArray(positionLoc)
     gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0)
 
     const textureLoc = gl.getAttribLocation(this.program, 'a_texture')
-    const texVertexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, texVertexBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texVertices), gl.STATIC_DRAW)
+    const texVertBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, texVertBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texVerts), gl.STATIC_DRAW)
     gl.enableVertexAttribArray(textureLoc)
     gl.vertexAttribPointer(textureLoc, 2, gl.FLOAT, false, 0, 0)
 
     const scalarLoc = gl.getAttribLocation(this.program, 'a_scalar')
-    const scalarBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, scalarBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(scalars), gl.STATIC_DRAW)
+    this.scalarVertBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.scalarVertBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, this.scalarVerts, gl.STATIC_DRAW)
     gl.enableVertexAttribArray(scalarLoc)
-    gl.vertexAttribPointer(scalarLoc, 2, gl.FLOAT, false, 0, 0)
+    gl.vertexAttribPointer(scalarLoc, 4, gl.FLOAT, false, 0, 0)
 
-    const indexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertIndices), gl.STATIC_DRAW)
+    const scalar2Loc = gl.getAttribLocation(this.program, 'a_scalar2')
+    this.scalar2VertBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.scalar2VertBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, this.scalar2Verts, gl.STATIC_DRAW)
+    gl.enableVertexAttribArray(scalar2Loc)
+    gl.vertexAttribPointer(scalar2Loc, 4, gl.FLOAT, false, 0, 0)
+  }
+
+  updateScalars () {
+    for (let i = 0; i < this.scalars.length; i++) {
+      this.scalars[i].value = (this.scalars[i].value + this.scalars[i].rate) % 1
+      this.scalars2[i].value = (this.scalars2[i].value + this.scalars2[i].rate) % 1
+    }
+    for (let i = 0; i < this.scalarMap.length; i++) {
+      this.scalarVerts[i] = this.scalars[this.scalarMap[i]].value
+      this.scalar2Verts[i] = this.scalars2[this.scalarMap[i]].value
+    }
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.scalarVertBuffer)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, this.scalarVerts, this.gl.STATIC_DRAW)
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.scalar2VertBuffer)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, this.scalar2Verts, this.gl.STATIC_DRAW)
   }
 
   draw () {
     this.gl.useProgram(this.program)
     // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer)
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.posVertexBuffer)
     this.gl.bindVertexArray(this.vao)
-    this.gl.drawElements(this.gl.TRIANGLES, this.vertexCount, this.gl.UNSIGNED_SHORT, 0)
+    this.updateScalars()
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertexCount)
   }
 }
