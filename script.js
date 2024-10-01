@@ -8,11 +8,20 @@ canvas.width = canvas.clientWidth
 canvas.height = canvas.clientHeight
 const gl = canvas.getContext('webgl2')
 
-const init = new Init(gl)
-const composite = new Composite(gl)
-const warp = new Warp(gl)
-const perlin = new Perlin(gl, 0.05, 200, 2)
-
+let init, composite, warp, perlin
+try {
+  init = new Init(gl)
+  composite = new Composite(gl)
+  warp = new Warp(gl)
+  perlin = new Perlin(gl, 0.05, 200, 2)
+} catch (e) {
+  const text = document.createElement('p')
+  text.textContent = String(e)
+  canvas.remove()
+  text.style.color = '#ff0000'
+  document.body.append(text)
+  throw e
+}
 /*
 Texture / framebuffer locations:
 0 / 1 : Warp

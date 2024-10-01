@@ -9,11 +9,13 @@ out vec4 o_colour;
 
 float PI2 = 6.28318530718;
 
+float posterise = 7.0;
+
 void main () {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec4 prev = texture(u_warpTex, uv);
 
     vec4 perlin = texture(u_perlinTex, uv);
-    float v = floor(perlin.x / 10.0) * 10;
-    o_colour = (perlin.x, perlin.x, perlin.x, 1.0);
+    float v = floor(perlin.x * posterise) / posterise;
+    o_colour = vec4(v, v, v, 1.0);
 }

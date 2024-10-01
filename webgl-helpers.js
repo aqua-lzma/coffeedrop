@@ -8,9 +8,12 @@ function createShader(gl, type, source) {
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
   const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS)
-  if (success) return shader
-  console.error(type, gl.getShaderInfoLog(shader))
-  gl.deleteShader(shader)
+  if (!success) {
+    const error = gl.getShaderInfoLog(shader)
+    gl.deleteShader(shader)
+    throw error
+  }
+  return shader
 }
 
 /**
@@ -26,9 +29,12 @@ export function createProgram(gl, vertexShaderSrc, fragmentShaderSrc) {
   gl.attachShader(program, fragmentShader)
   gl.linkProgram(program)
   const success = gl.getProgramParameter(program, gl.LINK_STATUS)
-  if (success) return program
-  console.error(gl.getProgramInfoLog(program))
-  gl.deleteProgram(program)
+  if (!success) {
+    const error = gl.getProgramInfoLog(program)
+    gl.deleteProgram(program)
+    throw error
+  }
+  return program
 }
 
 /**

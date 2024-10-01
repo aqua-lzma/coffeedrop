@@ -9,5 +9,5 @@ out vec4 o_colour;
 void main () {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec4 perlin = texture(u_perlinTex, uv);
-    o_colour = vec4(perlin.y, perlin.x, perlin.z, , 1.0);
+    o_colour = vec4(perlin.y, perlin.x, perlin.z, 1.0);
 }
