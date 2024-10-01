@@ -13,7 +13,7 @@ try {
   init = new Init(gl)
   composite = new Composite(gl)
   warp = new Warp(gl)
-  perlin = new Perlin(gl, 0.05, 200, 2)
+  perlin = new Perlin(gl, 0.3, 400, 2)
 } catch (e) {
   const text = document.createElement('p')
   text.textContent = String(e)
