@@ -1,11 +1,8 @@
-modules = ["python-3.11", "web"]
-run = "python -m http.server 80"
+modules = ["nodejs-20", "python-3.11", "web"]
+run = "python -m http.server 80 -d src"
 
 [nix]
 channel = "stable-24_05"
-
-[deployment]
-run = ["sh", "-c", "python -m http.server 80"]
 
 [[ports]]
 localPort = 80
