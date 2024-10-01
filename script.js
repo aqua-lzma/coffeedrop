@@ -1,6 +1,8 @@
 import Init from './init/init.js'
+/*
 import Composite from './composite/composite.js'
 import Warp from './warp/warp.js'
+*/
 import Perlin from './perlin/perlin.js'
 
 const canvas = document.getElementById('canvas')
@@ -10,10 +12,10 @@ const gl = canvas.getContext('webgl2')
 
 let init, composite, warp, perlin
 try {
-  init = new Init(gl)
-  composite = new Composite(gl)
-  warp = new Warp(gl)
-  perlin = new Perlin(gl, 0.3, 400, 2)
+  // init = await new Init(gl)
+  // composite = new Composite(gl)
+  // warp = new Warp(gl)
+  perlin = await new Perlin(gl, 0.3, 400, 2)
 } catch (e) {
   const text = document.createElement('p')
   text.textContent = String(e)
@@ -31,13 +33,12 @@ Texture / framebuffer locations:
 let curWarpBuffer = 0
 function drawFrame () {
   perlin.draw()
-  warp.draw(curWarpBuffer)
-  composite.draw(curWarpBuffer)
-  curWarpBuffer = curWarpBuffer === 0 ? 1 : 0
+  // warp.draw(curWarpBuffer)
+  // composite.draw(curWarpBuffer)
+  // curWarpBuffer = curWarpBuffer === 0 ? 1 : 0
   window.requestAnimationFrame(drawFrame)
 }
 
+// init.draw()
 perlin.draw()
-init.draw(warp.framebuffer1)
-
 drawFrame()
