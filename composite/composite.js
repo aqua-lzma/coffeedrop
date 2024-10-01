@@ -30,7 +30,7 @@ export default class Composite {
     this.warpTexLoc = gl.getUniformLocation(this.program, 'u_warpTex')
 
     const perlinTexLoc = gl.getUniformLocation(this.program, 'u_perlinTex')
-    gl.uniform1i(perlinTexLoc, 0)
+    gl.uniform1i(perlinTexLoc, 2)
   }
 
   draw (curWarpBuffer) {

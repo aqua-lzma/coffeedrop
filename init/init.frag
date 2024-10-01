@@ -1,13 +1,11 @@
 #version 300 es
 precision highp float;
 
-uniform vec2 u_resolution;
-uniform sampler2D u_perlinTex;
+in vec2 v_texture;
 
 out vec4 o_colour;
 
 void main () {
-    vec2 uv = gl_FragCoord.xy / u_resolution;
-    vec4 perlin = texture(u_perlinTex, uv);
-    o_colour = vec4(perlin.y, perlin.x, perlin.z, 1.0);
+    vec2 uv = v_texture;
+    o_colour = vec4(uv.x, uv.y, 0.5, 1.0);
 }
