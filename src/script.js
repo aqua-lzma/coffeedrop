@@ -1,9 +1,9 @@
-import Init from './init/init.js'
+import Init from './shaders/init/init.js'
 /*
 import Composite from './composite/composite.js'
 import Warp from './warp/warp.js'
 */
-import Perlin from './perlin/perlin.js'
+import Perlin from './shaders/perlin/perlin.js'
 
 const canvas = document.getElementById('canvas')
 canvas.width = canvas.clientWidth

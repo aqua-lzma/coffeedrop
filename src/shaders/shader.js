@@ -1,4 +1,4 @@
-import { createProgram } from "./webgl-helpers.js"
+import { createProgram } from "../webgl-helpers.js"
 
 export default class Shader {
   /** @param {WebGL2RenderingContext} gl */

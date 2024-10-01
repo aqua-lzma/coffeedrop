@@ -1,4 +1,4 @@
-import { initBuffer } from "../webgl-helpers.js"
+import { initBuffer } from "../../webgl-helpers.js"
 import Shader from "../shader.js"
 
 export default class Perlin extends Shader {
