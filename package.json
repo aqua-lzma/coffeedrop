@@ -1,5 +1,7 @@
 {
-  "dependencies": {
-    "standard": "^17.1.2"
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-standard": "^17.1.0",
+    "globals": "^15.10.0"
   }
 }
