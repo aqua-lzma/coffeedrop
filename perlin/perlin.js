@@ -47,17 +47,18 @@ export default class Perlin {
         for (let i = 0; i < 6; i++) this.scalarMap.push(i1, i2, i3, i4)
       }
     }
-    this.scalars = new Array((gridW + 1) * (gridH + 1)).fill().map(() => ({
-      value: Math.random(), rate: Math.random() / speed
-    }))
-    this.scalars2 = new Array((gridW + 1) * (gridH + 1)).fill().map(() => ({
-      value: Math.random(), rate: Math.random() / speed
-    }))
-    this.scalarVerts = new Float32Array(this.scalarMap.length)
-    this.scalar2Verts = new Float32Array(this.scalarMap.length)
+
+    this.scalars = new Array((gridW + 1) * (gridH + 1)).fill().map(() =>
+      new Array(4).fill().map(() => ({
+        value: Math.random(), rate: Math.random() / speed
+      }))
+    )
+    this.scalarVerts = new Float32Array(this.scalarMap.length * 4)
     for (let i = 0; i < this.scalarMap.length; i++) {
-      this.scalarVerts[i] = this.scalars[this.scalarMap[i]].value
-      this.scalar2Verts[i] = this.scalars2[this.scalarMap[i]].value
+      this.scalarVerts[i + (this.scalarMap.length * 0)] = this.scalars[this.scalarMap[i]][0].value
+      this.scalarVerts[i + (this.scalarMap.length * 1)] = this.scalars[this.scalarMap[i]][1].value
+      this.scalarVerts[i + (this.scalarMap.length * 3)] = this.scalars[this.scalarMap[i]][2].value
+      this.scalarVerts[i + (this.scalarMap.length * 4)] = this.scalars[this.scalarMap[i]][3].value
     }
     this.vertexCount = gridW * gridH * 6
 
@@ -82,37 +83,37 @@ export default class Perlin {
     const scalarLoc = gl.getAttribLocation(this.program, 'a_scalar')
     this.scalarVertBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, this.scalarVertBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, this.scalarVerts, gl.STATIC_DRAW)
-    gl.enableVertexAttribArray(scalarLoc)
-    gl.vertexAttribPointer(scalarLoc, 4, gl.FLOAT, false, 0, 0)
-
-    const scalar2Loc = gl.getAttribLocation(this.program, 'a_scalar2')
-    this.scalar2VertBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.scalar2VertBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, this.scalar2Verts, gl.STATIC_DRAW)
-    gl.enableVertexAttribArray(scalar2Loc)
-    gl.vertexAttribPointer(scalar2Loc, 4, gl.FLOAT, false, 0, 0)
+    gl.bufferData(gl.ARRAY_BUFFER, this.scalarVerts, gl.STREAM_DRAW)
+    gl.enableVertexAttribArray(scalarLoc + 0)
+    gl.enableVertexAttribArray(scalarLoc + 1)
+    gl.enableVertexAttribArray(scalarLoc + 2)
+    gl.enableVertexAttribArray(scalarLoc + 3)
+    gl.vertexAttribPointer(scalarLoc + 0, 4, gl.FLOAT, false, 0, this.scalarMap.length * 4 * 0)
+    gl.vertexAttribPointer(scalarLoc + 1, 4, gl.FLOAT, false, 0, this.scalarMap.length * 4 * 1)
+    gl.vertexAttribPointer(scalarLoc + 2, 4, gl.FLOAT, false, 0, this.scalarMap.length * 4 * 2)
+    gl.vertexAttribPointer(scalarLoc + 3, 4, gl.FLOAT, false, 0, this.scalarMap.length * 4 * 3)
   }
 
   updateScalars () {
     for (let i = 0; i < this.scalars.length; i++) {
-      this.scalars[i].value = (this.scalars[i].value + this.scalars[i].rate) % 1
-      this.scalars2[i].value = (this.scalars2[i].value + this.scalars2[i].rate) % 1
+      this.scalars[i][0].value = (this.scalars[i][0].value + this.scalars[i][0].rate) % 1
+      this.scalars[i][1].value = (this.scalars[i][1].value + this.scalars[i][1].rate) % 1
+      this.scalars[i][2].value = (this.scalars[i][2].value + this.scalars[i][2].rate) % 1
+      this.scalars[i][3].value = (this.scalars[i][3].value + this.scalars[i][3].rate) % 1
     }
     for (let i = 0; i < this.scalarMap.length; i++) {
-      this.scalarVerts[i] = this.scalars[this.scalarMap[i]].value
-      this.scalar2Verts[i] = this.scalars2[this.scalarMap[i]].value
+      this.scalarVerts[i + (this.scalarMap.length * 0)] = this.scalars[this.scalarMap[i]][0].value
+      this.scalarVerts[i + (this.scalarMap.length * 1)] = this.scalars[this.scalarMap[i]][1].value
+      this.scalarVerts[i + (this.scalarMap.length * 3)] = this.scalars[this.scalarMap[i]][2].value
+      this.scalarVerts[i + (this.scalarMap.length * 4)] = this.scalars[this.scalarMap[i]][3].value
     }
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.scalarVertBuffer)
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, this.scalarVerts, this.gl.STATIC_DRAW)
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.scalar2VertBuffer)
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, this.scalar2Verts, this.gl.STATIC_DRAW)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, this.scalarVerts, this.gl.STREAM_DRAW)
   }
 
   draw () {
     this.gl.useProgram(this.program)
-    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer)
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer)
     this.gl.bindVertexArray(this.vao)
     this.updateScalars()
     this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertexCount)
