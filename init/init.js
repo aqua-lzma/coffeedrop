@@ -1,17 +1,16 @@
-import { createProgram, initBuffer } from "../webgl-helpers.js"
+import { createProgram } from "../webgl-helpers.js"
 
-const VERT_SRC = await (await fetch('./warp/warp.vert')).text()
-const FRAG_SRC = await (await fetch('./warp/warp.frag')).text()
+const VERT_SRC = await (await fetch('./init/init.vert')).text()
+const FRAG_SRC = await (await fetch('./init/init.frag')).text()
 
-export default class Warp {
+export default class Init {
   /** @param {WebGL2RenderingContext} gl */
   constructor (gl) {
     const width = gl.canvas.width
     const height = gl.canvas.height
     this.gl = gl
     this.program = createProgram(gl, VERT_SRC, FRAG_SRC)
-    this.framebuffer0 = initBuffer(gl, 0)
-    this.framebuffer1 = initBuffer(gl, 1)
+    this.curWarpBuffer = 0
 
     gl.useProgram(this.program)
 
@@ -28,17 +27,14 @@ export default class Warp {
     const resolutionLoc = gl.getUniformLocation(this.program, 'u_resolution')
     gl.uniform2fv(resolutionLoc, [width, height])
 
-    this.warpTexLoc = gl.getUniformLocation(this.program, 'u_warpTex')
-
     const perlinTexLoc = gl.getUniformLocation(this.program, 'u_perlinTex')
     gl.uniform1i(perlinTexLoc, 2)
   }
 
-  draw (curFrameBuffer) {
+  draw (framebuffer) {
     this.gl.useProgram(this.program)
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, curFrameBuffer === 0 ? this.framebuffer0 : this.framebuffer1)
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, framebuffer)
     this.gl.bindVertexArray(this.vao)
-    this.gl.uniform1i(this.warpTexLoc, curFrameBuffer === 0 ? 1 : 0)
     this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4)
   }
 }
