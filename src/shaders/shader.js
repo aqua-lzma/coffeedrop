@@ -1,16 +1,14 @@
-import { createProgram } from "../webgl-helpers.js"
+import { createProgram } from '../webgl-helpers.js'
 
 export default class Shader {
   /** @param {WebGL2RenderingContext} gl */
-  constructor (gl, name, args={}) {
+  constructor (gl, name, args = {}) {
     return (async () => {
       this.gl = gl
-      for (let key in args) {
-        this[key] = value
-      }
+      for (const key in args) this[key] = args[key]
 
-      const vertSrc = await (await fetch(`./${name}/${name}.vert`)).text()
-      const fragSrc = await (await fetch(`./${name}/${name}.frag`)).text()
+      const vertSrc = await (await fetch(`./shaders/${name}/${name}.vert`)).text()
+      const fragSrc = await (await fetch(`./shaders/${name}/${name}.frag`)).text()
       this.program = createProgram(gl, vertSrc, fragSrc)
 
       this.initVertices()

@@ -1,4 +1,4 @@
-import { createProgram } from "../webgl-helpers.js"
+import { createProgram } from '../webgl-helpers.js'
 
 const VERT_SRC = await (await fetch('./composite/composite.vert')).text()
 const FRAG_SRC = await (await fetch('./composite/composite.frag')).text()

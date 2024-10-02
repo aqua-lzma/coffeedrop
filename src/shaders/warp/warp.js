@@ -1,4 +1,4 @@
-import { createProgram, initBuffer } from "../../webgl-helpers.js"
+import { createProgram, initBuffer } from '../../webgl-helpers.js'
 
 const VERT_SRC = await (await fetch('./warp/warp.vert')).text()
 const FRAG_SRC = await (await fetch('./warp/warp.frag')).text()

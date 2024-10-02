@@ -3,7 +3,7 @@
  * @param {number} type
  * @param {string} source
  */
-function createShader(gl, type, source) {
+function createShader (gl, type, source) {
   const shader = gl.createShader(type)
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
@@ -21,7 +21,7 @@ function createShader(gl, type, source) {
  * @param {string} vertexShaderSrc
  * @param {string} fragmentShaderSrc
  */
-export function createProgram(gl, vertexShaderSrc, fragmentShaderSrc) {
+export function createProgram (gl, vertexShaderSrc, fragmentShaderSrc) {
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSrc)
   const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSrc)
   const program = gl.createProgram()
@@ -41,7 +41,7 @@ export function createProgram(gl, vertexShaderSrc, fragmentShaderSrc) {
  * @param {WebGL2RenderingContext} gl
  * @param {number} index
  */
-export function initBuffer(gl, index) {
+export function initBuffer (gl, index) {
   const texture = gl.createTexture()
   gl.activeTexture(gl.TEXTURE0 + index)
   gl.bindTexture(gl.TEXTURE_2D, texture)

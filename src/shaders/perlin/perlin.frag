@@ -46,11 +46,10 @@ void main () {
         v_texture - vec2(1, 1)
     );
 
-
     float v1 = calcPerlin(decompScalars(v_scalar[0]), centeredTex, easedUV);
     float v2 = calcPerlin(decompScalars(v_scalar[1]), centeredTex, easedUV);
     float v3 = calcPerlin(decompScalars(v_scalar[2]), centeredTex, easedUV);
     float v4 = calcPerlin(decompScalars(v_scalar[3]), centeredTex, easedUV);
 
-    o_colour = vec4(v1, v2, v3, v4);
+    o_colour = vec4(v1, v1, v1, v1);
 }

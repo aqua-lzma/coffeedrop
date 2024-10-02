@@ -30,7 +30,7 @@ Texture / framebuffer locations:
 2 : Perlin
 */
 
-let curWarpBuffer = 0
+const curWarpBuffer = 0
 function drawFrame () {
   perlin.draw()
   // warp.draw(curWarpBuffer)
