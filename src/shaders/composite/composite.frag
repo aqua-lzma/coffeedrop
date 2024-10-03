@@ -15,13 +15,14 @@ float PI2 = 6.28318530718;
 float cad = 0.0015;
 
 float subTex (vec2 uv) {
-    float a = texture(u_perlinTex, uv).y;
+    float y = texture(u_perlinTex, uv).y;
     // Number of lines from 0 -> 1
-    a = sin(PI * a * 14.0);
+    float a = sin(PI * y * 14.0);
     a *= a;
     // Thinness of lines (higher = thinner)
     a = pow(a, 13.0);
     a = clamp(a, 0.06, 0.8);
+    if (y > 0.5) a = 1.0 - a;
     return a;
 }
 

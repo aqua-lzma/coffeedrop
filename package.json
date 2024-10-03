@@ -1,8 +1,32 @@
 {
+  "name": "coffeedrop",
+  "version": "1.0.0",
+  "description": "MilkDrop sans music in WebGL",
+  "main": "src/index.html",
+  "scripts": {
+    "test": "eslint .",
+    "serve": "webpack serve",
+    "build": "webpack build --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aqua-lzma/coffeedrop.git"
+  },
+  "author": "aqua-lzma",
+  "bugs": {
+    "url": "https://github.com/aqua-lzma/coffeedrop/issues"
+  },
+  "homepage": "https://github.com/aqua-lzma/coffeedrop#readme",
+  "dependencies": {
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0"
+  },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.11.1",
     "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard": "^17.1.0",
-    "prettier": "^3.3.3"
+    "globals": "^15.10.0"
   }
 }

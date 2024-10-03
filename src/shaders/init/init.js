@@ -1,6 +1,6 @@
 import Shader from '../shader.js'
 
-const fragSrc = await (await fetch('./shaders/init/init.frag')).text()
+import fragSrc from './init.frag'
 
 export default class Init extends Shader {
   /** @param {WebGL2RenderingContext} gl */

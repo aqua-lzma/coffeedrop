@@ -1,6 +1,6 @@
 import Shader from '../shader.js'
 
-const fragSrc = await (await fetch('./shaders/composite/composite.frag')).text()
+import fragSrc from './composite.frag'
 
 export default class Composite extends Shader {
   constructor (gl) {

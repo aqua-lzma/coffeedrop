@@ -1,6 +1,6 @@
 import Shader from '../shader.js'
 
-const fragSrc = await (await fetch('./shaders/warp/warp.frag')).text()
+import fragSrc from './warp.frag'
 
 export default class Warp extends Shader {
   /** @param {WebGL2RenderingContext} gl */

@@ -1,7 +1,7 @@
 import Shader from '../shader.js'
 
-const vertSrc = await (await fetch('./shaders/perlin/perlin.vert')).text()
-const fragSrc = await (await fetch('./shaders/perlin/perlin.frag')).text()
+import vertSrc from './perlin.vert'
+import fragSrc from './perlin.frag'
 
 export default class Perlin extends Shader {
   /** @param {WebGL2RenderingContext} gl */
