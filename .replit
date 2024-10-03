@@ -1,9 +1,9 @@
 modules = ["nodejs-20", "python-3.11", "web"]
-run = "python -m http.server 80 -d src"
+run = "npm run serve"
 
 [nix]
 channel = "stable-24_05"
 
 [[ports]]
-localPort = 80
-externalPort = 80
+localPort = 8080
+externalPort = 8080

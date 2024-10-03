@@ -3,7 +3,8 @@ module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
   devServer: {
-    static: './dist'
+    static: './dist',
+    allowedHosts: 'all'
   },
   module: {
     rules: [{
