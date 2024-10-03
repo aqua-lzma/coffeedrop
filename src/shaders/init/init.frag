@@ -7,5 +7,5 @@ out vec4 o_colour;
 
 void main () {
     vec2 uv = v_texture;
-    o_colour = vec4(uv.x, uv.y, 0.5, 1.0);
+    o_colour = vec4(uv.x, uv.y, 1.0, 1.0);
 }

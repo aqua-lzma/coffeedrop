@@ -1,37 +1,18 @@
-import { createProgram, initBuffer } from '../../webgl-helpers.js'
+import Shader from '../shader.js'
 
-const VERT_SRC = await (await fetch('./warp/warp.vert')).text()
-const FRAG_SRC = await (await fetch('./warp/warp.frag')).text()
+const fragSrc = await (await fetch('./shaders/warp/warp.frag')).text()
 
-export default class Warp {
+export default class Warp extends Shader {
   /** @param {WebGL2RenderingContext} gl */
   constructor (gl) {
-    const width = gl.canvas.width
-    const height = gl.canvas.height
+    console.log('Compiling warp shader.')
+    super()
     this.gl = gl
-    this.program = createProgram(gl, VERT_SRC, FRAG_SRC)
-    this.framebuffer0 = initBuffer(gl, 0)
-    this.framebuffer1 = initBuffer(gl, 1)
-
-    gl.useProgram(this.program)
-
-    this.vao = gl.createVertexArray()
-    gl.bindVertexArray(this.vao)
-
-    const positionLoc = gl.getAttribLocation(this.program, 'a_position')
-    const posVertexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, posVertexBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, 1, -1, -1, 1, 1, 1, -1]), gl.STATIC_DRAW)
-    gl.enableVertexAttribArray(positionLoc)
-    gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0)
-
-    const resolutionLoc = gl.getUniformLocation(this.program, 'u_resolution')
-    gl.uniform2fv(resolutionLoc, [width, height])
-
-    this.warpTexLoc = gl.getUniformLocation(this.program, 'u_warpTex')
-
-    const perlinTexLoc = gl.getUniformLocation(this.program, 'u_perlinTex')
-    gl.uniform1i(perlinTexLoc, 2)
+    this.framebuffer0 = this.initBuffer(0)
+    this.framebuffer1 = this.initBuffer(1)
+    this.initProgram(fragSrc)
+    this.initVertices()
+    this.initUniforms()
   }
 
   draw (curFrameBuffer) {

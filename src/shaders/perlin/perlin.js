@@ -1,12 +1,19 @@
-import { initBuffer } from '../../webgl-helpers.js'
 import Shader from '../shader.js'
+
+const vertSrc = await (await fetch('./shaders/perlin/perlin.vert')).text()
+const fragSrc = await (await fetch('./shaders/perlin/perlin.frag')).text()
 
 export default class Perlin extends Shader {
   /** @param {WebGL2RenderingContext} gl */
-  constructor (gl, scale, speed) {
-    const promise = super(gl, 'perlin', { scale, speed })
-    this.framebuffer = initBuffer(gl, 2)
-    return promise
+  constructor (gl, scale, speeds) {
+    console.log('Compiling perlin shader.')
+    super()
+    this.gl = gl
+    this.scale = scale
+    this.speeds = speeds
+    this.framebuffer = this.initBuffer(2)
+    this.initProgram(fragSrc, vertSrc)
+    this.initVertices()
   }
 
   initVertices () {
@@ -50,8 +57,8 @@ export default class Perlin extends Shader {
     }
 
     this.scalars = new Array((gridW + 1) * (gridH + 1)).fill().map(() =>
-      new Array(4).fill().map(() => ({
-        value: Math.random(), rate: Math.random() / this.speed
+      new Array(4).fill().map((_, i) => ({
+        value: Math.random(), rate: Math.random() * this.speeds[i]
       }))
     )
     this.scalarVerts = new Float32Array(this.scalarMap.length * 4)
@@ -89,7 +96,7 @@ export default class Perlin extends Shader {
     this.gl.vertexAttribPointer(scalarLoc + 3, 4, this.gl.FLOAT, false, 0, 4 * this.scalarMap.length * 3)
   }
 
-  updateVertexes () {
+  updateVertices () {
     for (let i = 0; i < this.scalars.length; i++) {
       for (let j = 0; j < 4; j++) {
         this.scalars[i][j].value = (this.scalars[i][j].value + this.scalars[i][j].rate) % 1
@@ -104,11 +111,12 @@ export default class Perlin extends Shader {
     this.gl.bufferData(this.gl.ARRAY_BUFFER, this.scalarVerts, this.gl.STREAM_DRAW)
   }
 
-  draw (framebuffer) {
+  draw () {
     this.gl.useProgram(this.program)
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, framebuffer)
     this.gl.bindVertexArray(this.vao)
-    this.updateVertexes()
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer)
+    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
+    this.updateVertices()
     this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertexCount)
   }
 }

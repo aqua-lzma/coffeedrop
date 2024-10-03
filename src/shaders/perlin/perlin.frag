@@ -51,5 +51,5 @@ void main () {
     float v3 = calcPerlin(decompScalars(v_scalar[2]), centeredTex, easedUV);
     float v4 = calcPerlin(decompScalars(v_scalar[3]), centeredTex, easedUV);
 
-    o_colour = vec4(v1, v1, v1, v1);
+    o_colour = vec4(v1, v2, v3, v4);
 }
