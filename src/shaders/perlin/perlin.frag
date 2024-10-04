@@ -18,7 +18,7 @@ mat4x2 decompScalars (vec4 scalars) {
         sin(scalars.z), cos(scalars.z),
         sin(scalars.w), cos(scalars.w)
     );
-    gradients *= SQRT2;
+    gradients *= SQRT2 * 2.0;
     return gradients;
 }
 
@@ -51,5 +51,7 @@ void main () {
     float v3 = calcPerlin(decompScalars(v_scalar[2]), centeredTex, easedUV);
     float v4 = calcPerlin(decompScalars(v_scalar[3]), centeredTex, easedUV);
 
-    o_colour = vec4(v1, v2, v3, v4);
+    o_colour = vec4(v1, v1, v1, 1.0);
+    if (v1 >= 1.0) { o_colour.g = 0.0; o_colour.b = 0.0; }
+    if (v1 <= 0.0) { o_colour.b = 1.0; }
 }

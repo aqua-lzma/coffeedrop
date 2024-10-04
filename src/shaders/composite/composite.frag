@@ -22,25 +22,22 @@ float subTex (vec2 uv) {
     // Thinness of lines (higher = thinner)
     a = pow(a, 13.0);
     a = clamp(a, 0.06, 0.8);
-    if (y > 0.5) a = 1.0 - a;
+    if (y > 0.7) a = 1.0 - a;
     return a;
 }
 
 void main () {
-    vec2 uv = v_texture;
-    float x = texture(u_perlinTex, uv).x;
+    vec4 warp = texture(u_warpTex, v_texture);
+    vec4 perlin = texture(u_perlinTex, v_texture);
 
-    float degR = x;
-    float degG = mod(x + (1.0 / 3.0), 1.0);
-    float degB = mod(x + (2.0 / 3.0), 1.0);
+    // warp.r = 1.0 - warp.r;
+    warp.g = abs(warp.r - warp.g);
+    warp.b = abs(warp.r - warp.b);
+    // warp.g = pow(warp.g, 3.0);
+    // warp.b = pow(warp.b, 5.0);
+    warp.r = 1.0 - pow(warp.r, 7.0);
+    warp.b = pow(warp.b, 10.0);
 
-    vec2 angleR = vec2(sin(degR * PI2), cos(degR * PI2)) * cad;
-    vec2 angleG = vec2(sin(degG * PI2), cos(degG * PI2)) * cad;
-    vec2 angleB = vec2(sin(degB * PI2), cos(degB * PI2)) * cad;
-
-    float r = subTex(uv + angleR);
-    float g = subTex(uv + angleG);
-    float b = subTex(uv + angleB);
-
-    o_colour = vec4(r, g, b, 1.0);
+    o_colour = vec4(warp.gbr, 1.0);
+    o_colour = mod(o_colour * 1.1, 1.0);
 }

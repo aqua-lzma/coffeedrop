@@ -7,7 +7,7 @@ out vec2 v_texture;
 
 void main () {
     gl_Position = a_position;
-    v_texture = a_texture;
+    v_texture = vec2(a_texture.x, a_texture.y);
 }
 `
 
@@ -42,7 +42,12 @@ function createShader (gl, type, source) {
 }
 
 export default class Shader {
-  initProgram (fragSrc, vertSrc) {
+  /** @param {WebGL2RenderingContext} gl */
+  constructor (gl) {
+    this.gl = gl
+  }
+
+  initProgram (vertSrc, fragSrc) {
     if (vertSrc == null) vertSrc = DEFAULT_VERT_SRC
     if (fragSrc == null) fragSrc = DEFAULT_FRAG_SRC
 
@@ -67,24 +72,25 @@ export default class Shader {
     this.gl.bindVertexArray(this.vao)
 
     const vertices = new Float32Array([
-      -1, 1, 0, 0, // Top-left
-      -1, -1, 0, 1, // Bottom-left
-      1, 1, 1, 0, // Top-right
-      1, -1, 1, 1 // Bottom-right
+      -1, 1, 0, 1, // Top-left
+      -1, -1, 0, 0, // Bottom-left
+      1, 1, 1, 1, // Top-right
+      1, -1, 1, 0 // Bottom-right
     ])
+    this.drawMode = this.gl.TRIANGLE_STRIP
     this.vertexCount = 4
 
     const buffer = this.gl.createBuffer()
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
 
-    const textureLoc = this.gl.getAttribLocation(this.program, 'a_position')
-    this.gl.enableVertexAttribArray(textureLoc)
-    this.gl.vertexAttribPointer(textureLoc, 2, this.gl.FLOAT, false, 16, 0)
-
-    const positionLoc = this.gl.getAttribLocation(this.program, 'a_texture')
+    const positionLoc = this.gl.getAttribLocation(this.program, 'a_position')
     this.gl.enableVertexAttribArray(positionLoc)
-    this.gl.vertexAttribPointer(positionLoc, 2, this.gl.FLOAT, false, 16, 8)
+    this.gl.vertexAttribPointer(positionLoc, 2, this.gl.FLOAT, false, 16, 0)
+
+    const textureLoc = this.gl.getAttribLocation(this.program, 'a_texture')
+    this.gl.enableVertexAttribArray(textureLoc)
+    this.gl.vertexAttribPointer(textureLoc, 2, this.gl.FLOAT, false, 16, 8)
   }
 
   initUniforms () {
@@ -103,7 +109,7 @@ export default class Shader {
     const texture = this.gl.createTexture()
     this.gl.activeTexture(this.gl.TEXTURE0 + index)
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGB8, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGB, this.gl.UNSIGNED_BYTE, null)
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA16F, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.FLOAT, null)
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR)
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR)
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT)
@@ -115,10 +121,12 @@ export default class Shader {
     return buffer
   }
 
+  preDraw () {}
+
   draw () {
     this.gl.useProgram(this.program)
     this.gl.bindVertexArray(this.vao)
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
-    this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4)
+    this.preDraw(...arguments)
+    this.gl.drawArrays(this.drawMode, 0, this.vertexCount)
   }
 }

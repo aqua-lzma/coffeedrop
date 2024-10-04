@@ -7,12 +7,11 @@ export default class Perlin extends Shader {
   /** @param {WebGL2RenderingContext} gl */
   constructor (gl, scale, speeds) {
     console.log('Compiling perlin shader.')
-    super()
-    this.gl = gl
+    super(gl)
     this.scale = scale
     this.speeds = speeds
     this.framebuffer = this.initBuffer(2)
-    this.initProgram(fragSrc, vertSrc)
+    this.initProgram(vertSrc, fragSrc)
     this.initVertices()
   }
 
@@ -62,6 +61,7 @@ export default class Perlin extends Shader {
       }))
     )
     this.scalarVerts = new Float32Array(this.scalarMap.length * 4)
+    this.drawMode = this.gl.TRIANGLES
     this.vertexCount = gridW * gridH * 6
 
     this.gl.useProgram(this.program)
@@ -111,12 +111,8 @@ export default class Perlin extends Shader {
     this.gl.bufferData(this.gl.ARRAY_BUFFER, this.scalarVerts, this.gl.STREAM_DRAW)
   }
 
-  draw () {
-    this.gl.useProgram(this.program)
-    this.gl.bindVertexArray(this.vao)
+  preDraw () {
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer)
-    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
     this.updateVertices()
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertexCount)
   }
 }
