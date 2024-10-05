@@ -12,7 +12,7 @@ float PI = 3.1415926538;
 float PI2 = 6.28318530718;
 
 vec2 scalarToVec (float scalar) {
-    return vec2(sin(scalar * PI2), cos(scalar * PI2));
+    return vec2(cos(scalar * PI2), sin(scalar * PI2));
 }
 
 void main () {

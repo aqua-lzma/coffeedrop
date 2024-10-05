@@ -1,21 +1,17 @@
-import Shader from '../shader.js'
+import { Program, Texture } from '../helpers.js'
 
 import vertSrc from './perlin.vert'
 import fragSrc from './perlin.frag'
 
-export default class Perlin extends Shader {
+export default class Perlin extends Program {
   /** @param {WebGL2RenderingContext} gl */
   constructor (gl, scale, speeds) {
     console.log('Compiling perlin shader.')
-    super(gl)
-    this.scale = scale
-    this.speeds = speeds
-    this.framebuffer = this.initBuffer(2)
-    this.initProgram(vertSrc, fragSrc)
-    this.initVertices()
+    super(gl, vertSrc, fragSrc, { scale, speeds })
+    this.texture = new Texture(gl, 2, { format: gl.RGBA16F })
   }
 
-  initVertices () {
+  initVAO () {
     // Calculate gradient grid size / dimensions
     const { width, height } = this.gl.canvas
     let pixelSize, gridW, gridH
@@ -112,7 +108,7 @@ export default class Perlin extends Shader {
   }
 
   preDraw () {
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer)
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.texture.framebuffer)
     this.updateVertices()
   }
 }

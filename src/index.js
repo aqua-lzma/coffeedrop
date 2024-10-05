@@ -24,11 +24,11 @@ let curWarpBuffer = 0
 function drawFrame () {
   perlin.draw()
   warp.draw(curWarpBuffer)
-  composite.draw()
+  composite.draw(curWarpBuffer)
   curWarpBuffer = curWarpBuffer === 0 ? 1 : 0
   window.requestAnimationFrame(drawFrame)
 }
 
 perlin.draw()
-init.draw(warp.framebuffer1)
+init.draw(warp.texture1.framebuffer)
 drawFrame()

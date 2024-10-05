@@ -38,6 +38,6 @@ void main () {
     warp.r = 1.0 - pow(warp.r, 7.0);
     warp.b = pow(warp.b, 10.0);
 
+    warp = mod(warp * 1.1, 1.0);
     o_colour = vec4(warp.gbr, 1.0);
-    o_colour = mod(o_colour * 1.1, 1.0);
 }

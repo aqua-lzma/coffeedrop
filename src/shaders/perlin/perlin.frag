@@ -18,7 +18,7 @@ mat4x2 decompScalars (vec4 scalars) {
         sin(scalars.z), cos(scalars.z),
         sin(scalars.w), cos(scalars.w)
     );
-    gradients *= SQRT2 * 2.0;
+    gradients *= SQRT2 * 1.5;
     return gradients;
 }
 

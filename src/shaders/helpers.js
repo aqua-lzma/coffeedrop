@@ -41,18 +41,19 @@ function createShader (gl, type, source) {
   return shader
 }
 
-export default class Shader {
+export class Program {
   /** @param {WebGL2RenderingContext} gl */
-  constructor (gl) {
+  constructor (gl, vertSrc, fragSrc, args) {
     this.gl = gl
-  }
+    for (const key in args) this[key] = args[key]
 
-  initProgram (vertSrc, fragSrc) {
+    // Compile shaders
     if (vertSrc == null) vertSrc = DEFAULT_VERT_SRC
     if (fragSrc == null) fragSrc = DEFAULT_FRAG_SRC
-
     const vertexShader = createShader(this.gl, this.gl.VERTEX_SHADER, vertSrc)
     const fragmentShader = createShader(this.gl, this.gl.FRAGMENT_SHADER, fragSrc)
+
+    // Create program and link shaders
     this.program = this.gl.createProgram()
     this.gl.attachShader(this.program, vertexShader)
     this.gl.attachShader(this.program, fragmentShader)
@@ -63,11 +64,15 @@ export default class Shader {
       this.gl.deleteProgram(this.program)
       throw error
     }
+
+    this.gl.useProgram(this.program)
+    // Default single quad VAO
+    this.initVAO()
+    // Default shared uniforms
+    this.initUniforms()
   }
 
-  initVertices () {
-    this.gl.useProgram(this.program)
-
+  initVAO () {
     this.vao = this.gl.createVertexArray()
     this.gl.bindVertexArray(this.vao)
 
@@ -101,26 +106,6 @@ export default class Shader {
     if (perlinTexLoc != null) this.gl.uniform1i(perlinTexLoc, 2)
   }
 
-  /**
-   * @param {WebGL2RenderingContext} gl
-   * @param {number} index
-   */
-  initBuffer (index) {
-    const texture = this.gl.createTexture()
-    this.gl.activeTexture(this.gl.TEXTURE0 + index)
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA16F, this.gl.canvas.width, this.gl.canvas.height, 0, this.gl.RGBA, this.gl.FLOAT, null)
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR)
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR)
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT)
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT)
-
-    const buffer = this.gl.createFramebuffer()
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, buffer)
-    this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, texture, 0)
-    return buffer
-  }
-
   preDraw () {}
 
   draw () {
@@ -128,5 +113,43 @@ export default class Shader {
     this.gl.bindVertexArray(this.vao)
     this.preDraw(...arguments)
     this.gl.drawArrays(this.drawMode, 0, this.vertexCount)
+  }
+}
+
+/** @param {WebGL2RenderingContext} gl */
+export class Texture {
+  constructor (gl, index, params = {}) {
+    const width = params.width ?? gl.canvas.width
+    const height = params.height ?? gl.canvas.height
+    const internalFormat = params.format ?? gl.RGB
+    const formatMap = {
+      [gl.RGB]: [gl.RGB, gl.UNSIGNED_BYTE],
+      [gl.RGBA]: [gl.RGBA, gl.UNSIGNED_BYTE],
+      [gl.RGBA16F]: [gl.RGBA, gl.HALF_FLOAT]
+    }
+    const [bufferFormat, bufferType] = formatMap[internalFormat]
+    const filterType = params.filter ?? gl.LINEAR
+    const wrap = params.wrap ?? gl.REPEAT
+
+    this.texture = gl.createTexture()
+    gl.activeTexture(gl.TEXTURE0 + index)
+    gl.bindTexture(gl.TEXTURE_2D, this.texture)
+    gl.texImage2D(gl.TEXTURE_2D,
+      0, // Mipmap level
+      internalFormat,
+      width, height,
+      0, // Border,
+      bufferFormat,
+      bufferType,
+      null // Pixel data
+    )
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filterType)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filterType)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap)
+
+    this.framebuffer = gl.createFramebuffer()
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer)
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0)
   }
 }
