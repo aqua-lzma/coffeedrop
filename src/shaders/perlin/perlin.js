@@ -8,7 +8,7 @@ export default class Perlin extends Program {
   constructor (gl, scale, speeds) {
     console.log('Compiling perlin shader.')
     super(gl, vertSrc, fragSrc, { scale, speeds })
-    this.texture = new Texture(gl, 2, { format: gl.RGBA16F })
+    this.texture = new Texture(gl, 4, { format: gl.RGBA16F })
   }
 
   initVAO () {

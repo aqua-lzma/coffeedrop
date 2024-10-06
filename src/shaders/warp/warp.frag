@@ -26,7 +26,9 @@ void main () {
     float g = sample1.g - (perlin.z * 0.01);
     float b = sample1.r * perlin.z * 1.7;
 
-    o_colour = vec4(r, g, b, 1.0);
-    o_colour = mod(o_colour, 1.0);
-    // o_colour = vec4(perlin.x, perlin.y, perlin.z, 1.0);
+    vec3 rgb = vec3(r, g, b);
+    rgb = mod(rgb, 1.0);
+
+    o_colour.rgb = rgb;
+    o_colour.a = 1.0;
 }

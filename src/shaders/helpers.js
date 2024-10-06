@@ -100,10 +100,10 @@ export class Program {
 
   initUniforms () {
     const warpTexLoc = this.gl.getUniformLocation(this.program, 'u_warpTex')
-    if (warpTexLoc != null) this.warpTexLoc = warpTexLoc
+    if (warpTexLoc != null) this.gl.uniform1i(warpTexLoc, 0)
 
     const perlinTexLoc = this.gl.getUniformLocation(this.program, 'u_perlinTex')
-    if (perlinTexLoc != null) this.gl.uniform1i(perlinTexLoc, 2)
+    if (perlinTexLoc != null) this.gl.uniform1i(perlinTexLoc, 4)
   }
 
   preDraw () {}

@@ -20,12 +20,10 @@ const perlin = new Perlin(gl, 0.3, [1 / 100, 1 / 400, 1 / 400, 1 / 400])
 const warp = new Warp(gl)
 const composite = new Composite(gl)
 
-let curWarpBuffer = 0
 function drawFrame () {
   perlin.draw()
-  warp.draw(curWarpBuffer)
-  composite.draw(curWarpBuffer)
-  curWarpBuffer = curWarpBuffer === 0 ? 1 : 0
+  warp.draw()
+  composite.draw(warp.texture)
   window.requestAnimationFrame(drawFrame)
 }
 

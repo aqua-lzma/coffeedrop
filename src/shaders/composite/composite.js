@@ -9,8 +9,7 @@ export default class Composite extends Program {
     super(gl, null, fragSrc)
   }
 
-  preDraw (curFrameBuffer) {
+  preDraw () {
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
-    this.gl.uniform1i(this.warpTexLoc, curFrameBuffer === 0 ? 1 : 0)
   }
 }
