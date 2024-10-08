@@ -101,7 +101,12 @@ export class Program {
   initUniforms () {
     const warpTexLoc = this.gl.getUniformLocation(this.program, 'u_warpTex')
     if (warpTexLoc != null) this.gl.uniform1i(warpTexLoc, 0)
-
+    const blur1Loc = this.gl.getUniformLocation(this.program, 'u_blur1Tex')
+    if (blur1Loc != null) this.gl.uniform1i(blur1Loc, 1)
+    const blur2Loc = this.gl.getUniformLocation(this.program, 'u_blur2Tex')
+    if (blur2Loc != null) this.gl.uniform1i(blur2Loc, 2)
+    const blur3Loc = this.gl.getUniformLocation(this.program, 'u_blur3Tex')
+    if (blur3Loc != null) this.gl.uniform1i(blur3Loc, 3)
     const perlinTexLoc = this.gl.getUniformLocation(this.program, 'u_perlinTex')
     if (perlinTexLoc != null) this.gl.uniform1i(perlinTexLoc, 4)
   }
@@ -119,8 +124,8 @@ export class Program {
 /** @param {WebGL2RenderingContext} gl */
 export class Texture {
   constructor (gl, index, params = {}) {
-    const width = params.width ?? gl.canvas.width
-    const height = params.height ?? gl.canvas.height
+    this.width = params.width ?? gl.canvas.width
+    this.height = params.height ?? gl.canvas.height
     const internalFormat = params.format ?? gl.RGB
     const formatMap = {
       [gl.RGB]: [gl.RGB, gl.UNSIGNED_BYTE],
@@ -137,7 +142,7 @@ export class Texture {
     gl.texImage2D(gl.TEXTURE_2D,
       0, // Mipmap level
       internalFormat,
-      width, height,
+      this.width, this.height,
       0, // Border,
       bufferFormat,
       bufferType,

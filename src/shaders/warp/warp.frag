@@ -4,6 +4,9 @@ precision highp float;
 in vec2 v_texture;
 
 uniform sampler2D u_warpTex;
+uniform sampler2D u_blur1Tex;
+uniform sampler2D u_blur2Tex;
+uniform sampler2D u_blur3Tex;
 uniform sampler2D u_perlinTex;
 
 out vec4 o_colour;

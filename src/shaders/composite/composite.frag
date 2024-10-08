@@ -4,6 +4,9 @@ precision highp float;
 in vec2 v_texture;
 
 uniform sampler2D u_warpTex;
+uniform sampler2D u_blur1Tex;
+uniform sampler2D u_blur2Tex;
+uniform sampler2D u_blur3Tex;
 uniform sampler2D u_perlinTex;
 
 out vec4 o_colour;
@@ -30,11 +33,8 @@ void main () {
     vec4 warp = texture(u_warpTex, v_texture);
     vec4 perlin = texture(u_perlinTex, v_texture);
 
-    // warp.r = 1.0 - warp.r;
     warp.g = abs(warp.r - warp.g);
     warp.b = abs(warp.r - warp.b);
-    // warp.g = pow(warp.g, 3.0);
-    // warp.b = pow(warp.b, 5.0);
     warp.r = 1.0 - pow(warp.r, 7.0);
     warp.b = pow(warp.b, 10.0);
 

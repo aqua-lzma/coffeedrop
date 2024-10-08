@@ -9,5 +9,6 @@ out vec4 o_colour;
 
 void main () {
     vec4 perlin = texture(u_perlinTex, v_texture);
-    o_colour = vec4(perlin.x, perlin.x, perlin.x, 1.0);
+    float value = floor(perlin.x * 10.0) / 10.0;
+    o_colour = vec4(value, value, value, 1.0);
 }
