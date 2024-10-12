@@ -3,6 +3,7 @@ precision highp float;
 
 in vec2 v_texture;
 
+uniform vec4 u_size;
 uniform sampler2D u_warpTex;
 uniform sampler2D u_blur1Tex;
 uniform sampler2D u_blur2Tex;
@@ -11,27 +12,41 @@ uniform sampler2D u_perlinTex;
 
 out vec4 o_colour;
 
-float PI = 3.1415926538;
-float PI2 = 6.28318530718;
-
-vec2 scalarToVec (float scalar) {
-    return vec2(cos(scalar * PI2), sin(scalar * PI2));
-}
-
 void main () {
-    vec4 perlin = texture(u_perlinTex, v_texture);
+    vec2 uv = v_texture;
+    vec2 d = u_size.zw * 4.0;
 
-    vec2 offset = scalarToVec(perlin.x) * 0.004;
+    vec4 dx = texture(u_blur1Tex, fract(uv + vec2(1, 0) * d)) - texture(u_blur1Tex, fract(uv - vec2(1, 0) * d));
+    vec4 dy = texture(u_blur1Tex, fract(uv + vec2(0, 1) * d)) - texture(u_blur1Tex, fract(uv - vec2(0, 1) * d));
+    vec4 b1 = texture(u_blur1Tex, v_texture);
 
-    vec4 sample1 = texture(u_warpTex, v_texture + offset);
+    d *= -1.0;
+    vec2 d2 = d * 4.0;
 
-    float r = sample1.b + (perlin.z * 0.01);
-    float g = sample1.g - (perlin.z * 0.01);
-    float b = sample1.r * perlin.z * 1.7;
+    float c1 = 0.042;
+    float c2 = -0.0075;
 
-    vec3 rgb = vec3(r, g, b);
-    rgb = mod(rgb, 1.0);
+    vec2 uv2 = uv - vec2(dx.y, dy.y) * d - vec2(dx.x, dy.x) * d2;
+    o_colour.y = texture(u_warpTex, uv2 - floor(uv2)).y;
+    o_colour.y += (o_colour.y - b1.y) * c1 + c2;
 
-    o_colour.rgb = rgb;
-    o_colour.a = 1.0;
+    uv2 = uv - vec2(dx.x, dy.x) * d - vec2(dx.z, dy.z) * d2;
+    o_colour.x = texture(u_warpTex, uv2 - floor(uv2)).x;
+    o_colour.x += (o_colour.x - b1.x) * c1 + c2;
+
+    uv2 = uv - vec2(dx.z, dy.z) * d - vec2(dx.y, dy.y) * d2;
+    o_colour.z = texture(u_warpTex, uv2 - floor(uv2)).z;
+    o_colour.z += (o_colour.z - b1.z) * c1 + c2;
+
+    o_colour.w = 1.0;
+
+    vec3 perlin = texture(u_perlinTex, uv).xyz;
+    perlin = sin(perlin * 7.0);
+    perlin *= perlin;
+    float p = 15.0;
+    perlin = pow(perlin, vec3(p, p, p));
+    float threshold = 0.9999;
+    if (perlin.x > threshold) o_colour.x = perlin.x;
+    if (perlin.y > threshold) o_colour.y = perlin.y;
+    if (perlin.z > threshold) o_colour.z = perlin.z;
 }

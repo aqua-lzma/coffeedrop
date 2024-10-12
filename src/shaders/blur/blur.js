@@ -99,7 +99,8 @@ export default class Blur {
       const height2 = Math.floor((height + 3) / 4) * 4
       this.textures.push(new Texture(gl, 1 + Math.floor(i / 2), {
         width: width2,
-        height: height2
+        height: height2,
+        wrap: gl.CLAMP_TO_EDGE
       }))
     }
   }

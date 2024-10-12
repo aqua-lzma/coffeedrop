@@ -8,7 +8,8 @@ uniform sampler2D u_perlinTex;
 out vec4 o_colour;
 
 void main () {
-    vec4 perlin = texture(u_perlinTex, v_texture);
-    float value = floor(perlin.x * 10.0) / 10.0;
-    o_colour = vec4(value, value, value, 1.0);
+    vec3 perlin = texture(u_perlinTex, v_texture).xyz;
+    perlin = sin(perlin * 30.0);
+    perlin *= perlin;
+    o_colour = vec4(perlin.xyz, 1.0);
 }

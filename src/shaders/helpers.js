@@ -109,6 +109,12 @@ export class Program {
     if (blur3Loc != null) this.gl.uniform1i(blur3Loc, 3)
     const perlinTexLoc = this.gl.getUniformLocation(this.program, 'u_perlinTex')
     if (perlinTexLoc != null) this.gl.uniform1i(perlinTexLoc, 4)
+
+    const sizeLoc = this.gl.getUniformLocation(this.program, 'u_size')
+    if (sizeLoc != null) this.gl.uniform4f(sizeLoc, this.gl.canvas.width, this.gl.canvas.height, 1 / this.gl.canvas.width, 1 / this.gl.canvas.height)
+
+    this.timeLoc = this.gl.getUniformLocation(this.program, 'u_time')
+    if (this.timeLoc != null) this.time = performance.now()
   }
 
   preDraw () {}
@@ -117,6 +123,7 @@ export class Program {
     this.gl.useProgram(this.program)
     this.gl.bindVertexArray(this.vao)
     this.preDraw(...arguments)
+    if (this.timeLoc != null) this.gl.uniform1i(this.timeLoc, performance.now() - this.time)
     this.gl.drawArrays(this.drawMode, 0, this.vertexCount)
   }
 }

@@ -19,7 +19,7 @@ Texture / framebuffer locations:
 const composite = new Composite(gl)
 const warp = new Warp(gl)
 const blur = new Blur(gl)
-const perlin = new Perlin(gl, 0.3, [1 / 100, 1 / 400, 1 / 400, 1 / 400])
+const perlin = new Perlin(gl, 1, [1 / 800, 1 / 800, 1 / 800, 1 / 800])
 const init = new Init(gl)
 
 function drawFrame () {

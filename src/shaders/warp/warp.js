@@ -7,8 +7,8 @@ export default class Warp extends Program {
   constructor (gl) {
     console.log('Compiling warp shader.')
     super(gl, null, fragSrc)
-    this.texture0 = new Texture(gl, 0)
-    this.texture1 = new Texture(gl, 0)
+    this.texture0 = new Texture(gl, 0, { wrap: gl.CLAMP_TO_EDGE })
+    this.texture1 = new Texture(gl, 0, { wrap: gl.CLAMP_TO_EDGE })
     this.currentTexture = 0
   }
 
